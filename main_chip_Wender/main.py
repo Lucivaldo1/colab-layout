@@ -1,10 +1,10 @@
-"""Inclui o híbrido, os blocos do Leo e as cópias do Ítalo, e roda o DRC.
+"""Inclui o híbrido, os blocos do Leo e o bloco do Ítalo, e roda o DRC.
 
 O layout base é ``main/main_layout.gds``. As coordenadas saem dos rascunhos:
 
 - ``rascunho/main_rascunho.gds``: híbrido e Leo, células do pack2
-- ``rascunho/main_rascunho3.gds``: 12 cópias de ``Nanotools_Italo_SWG.gds``
-  em duas colunas na esquerda
+- ``rascunho/main_rascunho3.gds``: o bloco do Ítalo ocupava 12 cópias;
+  agora elas estão num único GDS, em duas colunas na esquerda
 
 No final o script grava o relatório e um ``.lyrdb.w`` com todos os
 marcadores em ``waived``.
@@ -88,7 +88,7 @@ CIRCUITOS_SECUNDARIOS: list[CircuitoSecundario] = [
     {
         "nome": "isa-jose-hyb-pack2",
         "gds": "main_chip_Wender\isa-jose\hybrid90_y_gc_pack.gds",
-        "celula": "TOP",
+        "celula": "hybrid90_y_gc_pack",
         "origem_um": (640, 3000),
     },
     {
@@ -115,22 +115,27 @@ CIRCUITOS_SECUNDARIOS: list[CircuitoSecundario] = [
     },
 ]
 
-# Duas colunas de 6. A célula TOP do Ítalo vai de (0, 0) a (1622, 280) µm.
-# No rascunho3 o pacote está em (-1547.590, 1466.020) e as cópias ficam
-# a x = -1711 ou 89 e y = 860, 460, …, -1140 em relação a esse pacote.
-_ITALO_GDS = "main_chip_Wender/circuito-italo-v1/Nanotools_Italo_SWG.gds"
-_ITALO_X = (-3258.590, -1458.590)
-_ITALO_Y = (2326.020, 1926.020, 1526.020, 1126.020, 726.020, 326.020)
-for _x_italo in _ITALO_X:
-    for _y_italo in _ITALO_Y:
-        CIRCUITOS_SECUNDARIOS.append(
-            {
-                "nome": "italo-v1",
-                "gds": _ITALO_GDS,
-                "celula": "TOP",
-                "origem_um": (_x_italo, _y_italo),
-            }
-        )
+# Doze faixas iguais, cópia do box de 40,92 µm. Seis na esquerda e seis
+# na direita. A origem é o canto inferior esquerdo da faixa de baixo.
+CIRCUITOS_SECUNDARIOS.append(
+    {
+        "nome": "italo-v1",
+        "gds": "main_chip_Wender/circuito-italo-v1/Nanotools_Italo_SWG.gds",
+        "celula": "TOP",
+        "origem_um": (-3258.590, 326.020),
+    }
+)
+
+# Cinco linhas do conversor TE0–TE0, com o teste de GCs à direita.
+# A origem é o canto inferior esquerdo. A célula mede 583,568 × 389 µm.
+CIRCUITOS_SECUNDARIOS.append(
+    {
+        "nome": "italo-conversor-te0",
+        "gds": "main_chip_Wender/circuito-italo-v1/conversor_te0_gc.gds",
+        "celula": "b2b_te0_gc",
+        "origem_um": (-670.0, -200.0),
+    }
+)
 
 # Falhas duras já presentes no main_layout.gds. O DRC final lista essas
 # contagens e não interrompe por elas. Metal e qualquer outra categoria
